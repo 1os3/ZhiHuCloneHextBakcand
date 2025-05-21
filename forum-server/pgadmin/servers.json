@@ -1,0 +1,15 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Forum PostgreSQL",
+      "Group": "Forum Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "forum",
+      "Username": "postgres",
+      "Password": "postgres",
+      "SSLMode": "prefer",
+      "Comment": "Forum System Database"
+    }
+  }
+}

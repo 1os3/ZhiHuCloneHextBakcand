@@ -1,0 +1,124 @@
+# Docker Compose 配置文件
+
+services:
+  # 后端 API 服务
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: forum-server
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=forum
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=your_jwt_secret_key
+      - JWT_EXPIRES_IN=7d
+      - COOKIE_SECRET=your_cookie_secret_key
+      # 日志相关配置
+      - LOG_LEVEL=info
+      - LOG_MAX_FILES=30
+      - LOG_MAX_SIZE=10m
+    volumes:
+      - ./src:/app/src
+      - ./logs:/app/logs
+    networks:
+      - forum-network
+
+  # PostgreSQL 数据库
+  postgres:
+    image: postgres:14-alpine
+    container_name: forum-postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=forum
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - forum-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Redis 缓存
+  redis:
+    image: redis:7-alpine
+    container_name: forum-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - forum-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # pgAdmin 数据库管理工具（可选）
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: forum-pgadmin
+    restart: always
+    ports:
+      - "5050:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@example.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - forum-network
+      
+  # Nginx 反向代理
+  nginx:
+    image: nginx:alpine
+    container_name: forum-nginx
+    restart: always
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - ./nginx/conf:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/nginx/ssl
+      - ./nginx/logs:/var/log/nginx
+      - ./public:/usr/share/nginx/html
+    depends_on:
+      api:
+        condition: service_started
+    networks:
+      - forum-network
+
+volumes:
+  postgres-data:
+  redis-data:
+  pgadmin-data:
+  # 添加日志卷，便于持久化日志数据
+  logs-data:
+
+networks:
+  forum-network:
+    driver: bridge
