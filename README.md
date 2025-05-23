@@ -1,4 +1,4 @@
-# 知乎风格论坛系统 (ZhiHu Clone)
+# 开源论坛系统 (ZhiHu Clone)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/1os3/ZhiHuCloneHextBakcand)
