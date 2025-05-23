@@ -1,8 +1,9 @@
 # 知乎风格论坛系统 (ZhiHu Clone)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/1os3/ZhiHuCloneHextBakcand)
 
-一个仿知乎风格的现代论坛系统，采用前后端分离架构，支持用户发帖、评论、点赞、收藏等功能。
+一个仿知乎风格的现代论坛系统，采用前后端分离架构(暂时没有前端），支持用户发帖、评论、点赞、收藏等功能。
 
 ## 设计目的
 
