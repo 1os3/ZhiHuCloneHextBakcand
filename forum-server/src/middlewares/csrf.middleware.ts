@@ -30,18 +30,6 @@ export const csrfMiddleware = (req: Request, res: Response, next: NextFunction):
     return next();
   }
 
-  // 跳过不需要 CSRF 保护的路由
-  const excludedPaths = [
-    '/api/health',
-    '/api/users/login',
-    '/api/users/register',
-    '/api/users/refresh-token',
-    '/api/csrf/token', // 添加CSRF令牌刷新路径为排除项
-  ];
-
-  if (excludedPaths.some(path => req.path.startsWith(path))) {
-    return next();
-  }
 
   // 从请求头中获取CSRF令牌
   const csrfToken = req.headers['x-xsrf-token'] || 
