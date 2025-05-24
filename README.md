@@ -1,27 +1,27 @@
-# 开源论坛系统 (ZhiHu Clone)
+# 开源论坛系统 (ZhiHu Clone) - 后端API
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/1os3/ZhiHuCloneHextBakcand)
 
-一个仿知乎风格的现代论坛系统，采用前后端分离架构(暂时没有前端），支持用户发帖、评论、点赞、收藏等功能。
+一个仿知乎风格的现代论坛系统后端API，采用Node.js + Express + TypeScript构建，支持用户发帖、评论、点赞、收藏等功能。
+
+**注意：这是一个纯后端项目，提供RESTful API接口。**
+
+## 📖 API文档
+
+完整的API文档请参考：[API.md](./API.md)
 
 ## 设计目的
 
-本项目旨在构建一个高性能、可扩展的社区论坛系统，具有以下特点：
+本项目旨在构建一个高性能、可扩展的社区论坛系统后端，具有以下特点：
 
-- **用户友好**：简洁直观的界面，类似知乎的交互体验
 - **高性能**：采用现代化的技术栈，确保系统响应迅速
 - **可扩展**：微服务架构设计，便于功能扩展
 - **安全可靠**：完善的安全机制，保护用户数据和隐私
-- **多端适配**：响应式设计，适配PC和移动端
+- **标准化**：遵循RESTful API设计规范
+- **易于集成**：提供完整的API文档，便于前端集成
 
 ## 技术栈
-
-### 前端
-- React + TypeScript
-- Redux Toolkit 状态管理
-- Ant Design 组件库
-- Axios HTTP客户端
 
 ### 后端
 - Node.js + Express + TypeScript
@@ -40,8 +40,8 @@
 ```
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
 │                 │     │                 │     │                 │
-│     前端应用     │ ◄──► │     API网关     │ ◄──► │     微服务      │
-│  (React/Redux)  │     │    (Nginx)     │     │   (Node.js)    │
+│     客户端       │ ◄──► │     API网关     │ ◄──► │     后端服务     │
+│   (任意前端)     │     │    (Nginx)     │     │   (Node.js)    │
 │                 │     │                 │     │                 │
 └─────────────────┘     └─────────────────┘     └─────────────────┘
                                                                   │
@@ -115,28 +115,6 @@ docker-compose up -d
 docker-compose down
 ```
 
-### 前端部署
-
-1. 进入前端目录
-```bash
-cd frontend
-```
-
-2. 安装依赖
-```bash
-npm install
-```
-
-3. 启动开发服务器
-```bash
-npm start
-```
-
-4. 构建生产版本
-```bash
-npm run build
-```
-
 ## 数据库设计
 
 数据库设计遵循第三范式，主要包含以下表：
@@ -153,6 +131,16 @@ npm run build
 ## API文档
 
 详细的API文档请参考 [API.md](./API.md)
+
+包含以下模块：
+- 用户管理 API
+- 帖子管理 API
+- 评论管理 API
+- 分类管理 API
+- 通知管理 API
+- 私信管理 API
+- 文件管理 API
+- 系统管理 API
 
 ## 贡献指南
 
