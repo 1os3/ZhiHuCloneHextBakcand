@@ -74,30 +74,102 @@
 
 ### 环境要求
 
-- Node.js 16+
-- PostgreSQL 13+
-- Redis 6+
-- Docker (可选)
+- Docker 20.10+
+- Docker Compose 2.0+
+- Node.js 16+ (仅开发环境)
+- PostgreSQL 13+ (仅开发环境)
+- Redis 6+ (仅开发环境)
 
-### 后端部署
+## 🚀 部署方式
 
-1. 克隆仓库
+### 方式一：使用预构建的Docker镜像（推荐）
+
+#### 1. 拉取最新镜像
+```bash
+# 从GitHub Container Registry拉取
+docker pull ghcr.io/1os3/zhihu-clone-backend:latest
+
+```
+
+#### 2. 使用生产环境配置启动
+```bash
+# 克隆仓库获取配置文件
+git clone https://github.com/1os3/ZhiHuCloneHextBakcand.git
+cd ZhiHuClone/forum-server
+
+# 更新docker-compose.prod.yml中的镜像名称
+# 将 forum-server-api:latest 改为 ghcr.io/1os3/zhihu-clone-backend:latest
+
+# 启动所有服务
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+#### 3. 验证部署
+```bash
+# 检查服务状态
+docker-compose -f docker-compose.prod.yml ps
+
+# 查看日志
+docker-compose -f docker-compose.prod.yml logs -f api
+
+# 测试API
+curl http://localhost:3000/health
+```
+
+### 方式二：本地构建Docker镜像
+
+#### 1. 克隆仓库
 ```bash
 git clone https://github.com/1os3/ZhiHuCloneHextBakcand.git
 cd ZhiHuClone/forum-server
 ```
 
-2. 安装依赖
+#### 2. 构建镜像
 ```bash
+# 构建API镜像
+docker build -t forum-server-api:latest .
+
+# 或使用构建脚本
+./pack-all-images.sh  # Linux/macOS
+# 或
+./pack-all-images.ps1  # Windows PowerShell
+```
+
+#### 3. 启动服务
+```bash
+# 开发环境
+docker-compose up -d
+
+# 生产环境
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+### 方式三：本地开发环境
+
+#### 1. 安装依赖
+```bash
+cd forum-server
 npm install
 ```
 
-3. 配置环境变量
-复制 `.env.example` 文件并重命名为 `.env`，然后根据需要进行配置。
-
-4. 启动服务
+#### 2. 配置环境变量
 ```bash
-# 开发模式
+# 复制环境变量模板
+cp .env.example .env
+
+# 编辑环境变量
+nano .env
+```
+
+#### 3. 启动数据库服务
+```bash
+# 只启动数据库和Redis
+docker-compose up -d postgres redis
+```
+
+#### 4. 启动API服务
+```bash
+# 开发模式（热重载）
 npm run dev
 
 # 生产模式
@@ -105,14 +177,138 @@ npm run build
 npm start
 ```
 
-### 使用Docker部署
+## 🔧 配置说明
+
+### 环境变量配置
+
+主要环境变量说明：
 
 ```bash
-# 使用Docker Compose启动所有服务
-docker-compose up -d
+# 应用配置
+NODE_ENV=production
+PORT=3000
 
-# 停止服务
-docker-compose down
+# 数据库配置
+DATABASE_HOST=postgres
+DATABASE_PORT=5432
+DATABASE_NAME=forum
+DATABASE_USER=postgres
+DATABASE_PASSWORD=your_secure_password
+
+# Redis配置
+REDIS_HOST=redis
+REDIS_PORT=6379
+
+# JWT配置
+JWT_SECRET=your_jwt_secret_key
+JWT_EXPIRES_IN=7d
+
+# Cookie配置
+COOKIE_SECRET=your_cookie_secret_key
+
+# 日志配置
+LOG_LEVEL=info
+LOG_MAX_FILES=30
+LOG_MAX_SIZE=10m
+```
+
+### 生产环境安全配置
+
+⚠️ **重要：生产环境部署前请务必修改以下配置**
+
+1. **修改默认密码**：
+   - 数据库密码：`POSTGRES_PASSWORD`
+   - pgAdmin密码：`PGADMIN_DEFAULT_PASSWORD`
+
+2. **生成安全密钥**：
+   - JWT密钥：`JWT_SECRET`
+   - Cookie密钥：`COOKIE_SECRET`
+
+3. **配置SSL证书**：
+   - 将SSL证书放置在 `nginx/ssl/` 目录
+   - 更新 `nginx/conf/` 中的配置文件
+
+## 📊 服务访问
+
+部署成功后，可以通过以下地址访问各项服务：
+
+| 服务 | 地址 | 说明 |
+|------|------|------|
+| API服务 | http://localhost:3000 | 主要API接口 |
+| API文档 | http://localhost:3000/api-docs | Swagger文档 |
+| 健康检查 | http://localhost:3000/health | 服务状态检查 |
+| pgAdmin | http://localhost:5050 | 数据库管理界面 |
+| Nginx | http://localhost:80 | 反向代理（生产环境） |
+
+## 🔍 故障排除
+
+### 常见问题
+
+1. **端口冲突**
+   ```bash
+   # 检查端口占用
+   netstat -tulpn | grep :3000
+   
+   # 修改docker-compose.yml中的端口映射
+   ports:
+     - "3001:3000"  # 将本地端口改为3001
+   ```
+
+2. **数据库连接失败**
+   ```bash
+   # 检查数据库容器状态
+   docker-compose logs postgres
+   
+   # 手动测试数据库连接
+   docker exec -it forum-postgres psql -U postgres -d forum
+   ```
+
+3. **权限问题**
+   ```bash
+   # 修复日志目录权限
+   sudo chown -R 1000:1000 logs/
+   
+   # 修复数据卷权限
+   docker-compose down
+   docker volume rm forum-postgres-data
+   docker-compose up -d
+   ```
+
+### 日志查看
+
+```bash
+# 查看所有服务日志
+docker-compose logs -f
+
+# 查看特定服务日志
+docker-compose logs -f api
+docker-compose logs -f postgres
+docker-compose logs -f redis
+
+# 查看应用日志文件
+tail -f logs/app.log
+tail -f logs/error.log
+```
+
+## 🐳 Docker镜像
+
+### 自动构建
+
+项目使用GitHub Actions自动构建和发布Docker镜像：
+
+- **GitHub Container Registry**: `ghcr.io/1os3/zhihu-clone-backend`
+- **触发条件**: 推送到master分支或创建版本标签
+- **支持平台**: linux/amd64, linux/arm64
+
+### 手动构建
+
+```bash
+# 构建单平台镜像
+docker build -t zhihu-clone-backend:latest ./forum-server
+
+# 构建多平台镜像
+docker buildx build --platform linux/amd64,linux/arm64 \
+  -t zhihu-clone-backend:latest ./forum-server --push
 ```
 
 ## 数据库设计
